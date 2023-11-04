@@ -12,25 +12,97 @@ yarn add @reduxjs/toolkit react-redux
 ### Creating Provider
 * `Provider`: The `<Provider>` component makes the Redux store available to any nested components that need to access the Redux store.
 * `configureStore()`: wraps createStore to provide simplified configuration options and good defaults. It can automatically combine your slice reducers, add whatever Redux middleware you supply, includes redux-thunk by default, and enables use of the Redux DevTools Extension.
-* 
+
+### `index.js`
 ```
-import { hydrateRoot } from 'react-dom/client'
-import { configureStore } from '@reduxjs/toolkit' /*importing configureStore */
-import { Provider } from 'react-redux'/*importing Provider */
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import reportWebVitals from './core/config/reportWebVitals';
 
-const preloadedState = window.__PRELOADED_STATE__
+/** Redux Code Starts */
+import { Provider } from 'react-redux'
+import store from './custom/Redux/Store';
+/** Redux Code End */
 
-const clientStore = configureStore({
-  reducer: rootReducer,
-  preloadedState,
-})
+import App from './custom/Components/App';
 
-hydrateRoot(
-  document.getElementById('root'),
-  <Provider store={clientStore} serverState={preloadedState}>
-    <App />
-  </Provider>
-)
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+
+root.render(
+  <React.StrictMode>
+    {/** Added Reducer Store via Provider */}
+    <Provider store={store}><App /></Provider>
+  </React.StrictMode>
+);
+
+reportWebVitals();
+```
+### `store.js` contains the combination of all store reducers
+
+```
+import { configureStore } from '@reduxjs/toolkit';
+import counterReducer from './Reducers/Counter/CounterSlice';
+import textCounterReducer from "../features/textCounter/textCounterSlice";
+/* . . . imports of other reducers */
+export default configureStore({
+  reducer: {
+    counter: counterReducer,
+    . . .
+    textCounter: textCounterReducer
+  },
+});
+
+```
+
+### `reducerSlice` - Contains the action and methods which alters the state of the redux
+
+```
+import { createSlice } from '@reduxjs/toolkit';
+
+export const slice = createSlice({
+  name: 'counter',
+  initialState: {
+    value: 0,
+  },
+  reducers: {
+    increment: state => {
+      // Redux Toolkit allows us to write "mutating" logic in reducers. It
+      // doesn't actually mutate the state because it uses the immer library,
+      // which detects changes to a "draft state" and produces a brand new
+      // immutable state based off those changes
+      state.value += 1;
+    },
+    decrement: state => {
+      state.value -= 1;
+    },
+    incrementByAmount: (state, action) => {
+      state.value += action.payload;
+    },
+  },
+});
+
+export const { increment, decrement, incrementByAmount } = slice.actions;
+
+// The function below is called a thunk and allows us to perform async logic. It
+// can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
+// will call the thunk with the `dispatch` function as the first argument. Async
+// code can then be executed and other actions can be dispatched
+export const incrementAsync = amount => dispatch => {
+  setTimeout(() => {
+    dispatch(incrementByAmount(amount));
+  }, 1000);
+};
+
+// The function below is called a selector and allows us to select a value from
+// the state. Selectors can also be defined inline where they're used instead of
+// in the slice file. For example: `useSelector((state) => state.counter.value)`
+export const selectCount = state => state.counter.value;
+
+export default slice.reducer;
+
 ```
 
 # Getting Started with Create React App
