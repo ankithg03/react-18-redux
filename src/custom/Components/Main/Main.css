@@ -1,0 +1,21 @@
+.main-content.container {
+    min-height: calc(100vh - 12rem);
+    justify-content: unset;
+    align-items: unset;
+    flex-direction: column;
+    padding: 1rem 0;
+}
+.title {
+    font-size: xxx-large;
+    font-weight: 500;
+    color: #3c3434;
+    text-align: center;
+}
+@media (max-width: 600px) {
+    .main-content.container {
+        padding: 1rem;
+    }
+    .title {
+        font-size: xx-large;
+    }
+}
